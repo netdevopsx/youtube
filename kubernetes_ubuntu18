@@ -1,0 +1,82 @@
+# Set static IP address on interface
+network:
+  ethernets:
+    ens33:
+      dhcp4: false
+      addresses:
+        - 172.16.103.132/24
+        - 172.16.103.133/24
+      gateway4: 172.16.103.2
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+  version: 2
+
+# Get Kubesprey and prepare inventory
+
+git clone -b v2.13.2 https://github.com/kubernetes-sigs/kubespray.git
+cd kubespray
+cp -rfp inventory/sample inventory/mycluster
+declare -a IPS=(172.16.103.132)
+CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+
+# Upload RSA keys to the server
+
+rename node in the inventory/mycluster/hosts.yaml
+ssh-copy-id -i ~/.ssh/id_rsa ubuntu@172.16.103.132
+ssh ubuntu@172.16.103.132
+sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
+
+# Prepare additional disk for path provision
+add new disk to VM
+mkfs.ext4 /dev/sdb
+DISK_UUID=$(blkid -s UUID -o value /dev/sdb)
+mkdir -p /opt/local-path-provisioner/
+mount /dev/sdb /opt/local-path-provisioner/
+echo "UUID=$DISK_UUID /opt/local-path-provisioner/ ext4 defaults 0 0" >> /etc/fstab
+
+# Install Kubernetes + local_path_provisioner_enabled
+
+ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml \
+-e "ansible_ssh_user=root \
+local_path_provisioner_enabled=true \
+dashboard_enabled=false"
+
+# get kubernetes config file
+scp root@172.16.103.132:/root/.kube/config ~/.kube/config
+
+# we have only one node,  we don't need to more one pod for core-dns
+# we will remove dns-autoscaler
+kubectl delete deployment dns-autoscaler --namespace=kube-system
+# scale current count of replicas to 1
+kubectl scale deployments.apps -n kube-system coredns --replicas=1
+
+
+# Install ingress 
+kubectl create ns ingress-nginx
+helm repo add nginx-stable https://helm.nginx.com/stable
+helm repo update
+helm -n ingress-nginx install ingress-nginx nginx-stable/nginx-ingress \
+--set controller.service.type=NodePort
+
+
+kubectl create namespace cert-manager
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --version v0.15.1 \
+  --set installCRDs=true
+
+
+# Install Concourse
+kubectl -n concourse apply -f production-issuer.yaml
+helm repo add concourse https://concourse-charts.storage.googleapis.com/
+helm -n concourse install concourse concourse/concourse \
+--set web.ingress.enabled=true, \
+web.ingress.hosts=['concourse.netdevopsx.com']
+
+HA
+80
+443
+6443
