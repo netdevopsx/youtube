@@ -1,14 +1,22 @@
+apt-get upgrade -y
 # Set static IP address on interface
 network:
   ethernets:
-    ens33:
+    ens160:
       dhcp4: false
+      dhcp6: false
       addresses:
-        - 172.16.103.132/24
-        - 172.16.103.133/24
-      gateway4: 172.16.103.2
+        - 192.168.0.10/24
+        - 192.168.0.11/24
+        - 2a02:8071:31b6:8800::11/128
+      gateway4: 192.168.0.1
+      gateway6: 2a02:8071:31b6:8800::4998
       nameservers:
-        addresses: [8.8.8.8, 8.8.4.4]
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
+          - 2001:4860:4860::8888
+          - 2001:4860:4860::8844
   version: 2
 
 # Get Kubesprey and prepare inventory
@@ -42,7 +50,7 @@ local_path_provisioner_enabled=true \
 dashboard_enabled=false"
 
 # get kubernetes config file
-scp root@172.16.103.132:/root/.kube/config ~/.kube/config
+scp root@192.168.0.10:/root/.kube/config ~/.kube/config
 
 # we have only one node,  we don't need to more one pod for core-dns
 # we will remove dns-autoscaler
@@ -51,12 +59,8 @@ kubectl delete deployment dns-autoscaler --namespace=kube-system
 kubectl scale deployments.apps -n kube-system coredns --replicas=1
 
 
-# Install ingress 
-kubectl create ns ingress-nginx
-helm repo add nginx-stable https://helm.nginx.com/stable
-helm repo update
-helm -n ingress-nginx install ingress-nginx nginx-stable/nginx-ingress \
---set controller.service.type=NodePort
+# Install ingress for baremetal (NodePort)
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml
 
 
 kubectl create namespace cert-manager
@@ -69,14 +73,35 @@ helm install \
   --set installCRDs=true
 
 
+kubectl create ns concourse
+curl -LO https://cert-manager.io/docs/tutorials/acme/example/production-issuer.yaml
+edit email
+kubectl -n concourse apply -f production-issuer.yaml
+kubectl -n concourse describe issuer letsencrypt-prod
+
 # Install Concourse
 kubectl -n concourse apply -f production-issuer.yaml
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
-helm -n concourse install concourse concourse/concourse \
---set web.ingress.enabled=true, \
-web.ingress.hosts=['concourse.netdevopsx.com']
+helm -n concourse install concourse -f values.yaml concourse/concourse
 
-HA
-80
-443
-6443
+
+HAProxy
+frontend front_http
+        bind 192.168.0.11:80,[2a02:8071:31b6:8800::11]:80
+        mode tcp
+        default_backend back_http
+
+backend back_http
+        mode tcp
+        balance roundrobin
+        server http1 192.168.0.10:32292 check
+
+frontend front_https
+        bind 192.168.0.11:443,[2a02:8071:31b6:8800::11]:443
+        mode tcp
+        default_backend back_https
+
+backend back_https
+        mode tcp
+        balance roundrobin
+        server https1 192.168.0.10:31783 check
