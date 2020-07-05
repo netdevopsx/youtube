@@ -106,13 +106,16 @@ kubectl create ns concourse
 # Install Concourse
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
 helm repo update
-git clone https://github.com/concourse/concourse-chart.git
-cd concourse-chart
-vi values.yaml
-helm -n concourse install concourse -f values.yaml concourse/concourse
+cd youtube/kubernetes_ubuntu_18
+vi concourse-value.yml
+helm -n concourse install concourse -f concourse-value.yml concourse/concourse
 
 
-HAProxy
+ssh root@192.168.0.10
+apt-get install haproxy
+vi /etc/default/haproxy
+
+HAProxy (80:32538/TCP,443:32482/TCP)
 frontend front_http
         bind 192.168.0.11:80,[2a02:8071:31b6:8800::11]:80
         mode tcp
@@ -132,3 +135,5 @@ backend back_https
         mode tcp
         balance roundrobin
         server https1 192.168.0.10:31783 check
+
+service haproxy restart
