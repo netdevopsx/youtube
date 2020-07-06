@@ -1,5 +1,6 @@
 Insert Ubuntu 18.04 CD
 Fresh install Ubuntu
+sudo vi /etc/netplan/00-installer-config.yaml
 # Set static IP address on interface
 network:
   ethernets:
@@ -40,14 +41,13 @@ CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inv
 sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
 
 Upgrade based software  
-apt-get upgrade -y
+sudo apt-get upgrade -y
 # Get Kubesprey and prepare inventory
 
 # Do some things under the root user
 
 ## Prepare additional disk for path provision
-
-add new disk to VM
+# add new disk to VM
 ssh root@192.168.0.10
 mkfs.ext4 /dev/sdb
 DISK_UUID=$(blkid -s UUID -o value /dev/sdb)
@@ -94,7 +94,18 @@ helm install \
   --version v0.15.1 \
   --set installCRDs=true
 
-Add ClusterIssuer
+kubectl create ns concourse
+# Install Concourse
+helm repo add concourse https://concourse-charts.storage.googleapis.com/
+helm repo update
+cd ..
+git clone https://github.com/netdevopsx/youtube.git
+cd youtube/kubernetes_ubuntu_18
+vi concourse-value.yml
+helm -n concourse install concourse -f concourse-value.yml concourse/concourse
+
+
+Add Issuer
 git clone https://github.com/netdevopsx/youtube.git
 cd kubernetes_ubuntu_18
 vi clusterissuer.yml (Private data)
@@ -102,20 +113,10 @@ kubectl apply -f clusterissuer.yml
 vi cert-manager-secret.yml
 kubectl apply -f cert-manager-secret.yml
 
-kubectl create ns concourse
-# Install Concourse
-helm repo add concourse https://concourse-charts.storage.googleapis.com/
-helm repo update
-cd youtube/kubernetes_ubuntu_18
-vi concourse-value.yml
-helm -n concourse install concourse -f concourse-value.yml concourse/concourse
-
-
 ssh root@192.168.0.10
 apt-get install haproxy
-vi /etc/default/haproxy
+vi /etc/haproxy/haproxy.cfg
 
-HAProxy (80:32538/TCP,443:32482/TCP)
 frontend front_http
         bind 192.168.0.11:80,[2a02:8071:31b6:8800::11]:80
         mode tcp
