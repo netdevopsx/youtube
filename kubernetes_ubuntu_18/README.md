@@ -3,7 +3,7 @@
 - Insert Ubuntu 18.04 CD
 - Conduct traditional Ubuntu installation
 - sudo vi /etc/netplan/00-installer-config.yaml
-# Set static IP address on interface
+## Set static IP address on interface
 ```
 network:
   ethernets:
@@ -26,39 +26,42 @@ network:
 ```
 - Reboot server
 ## Prepare terminal (SSH keys)
-- Login to server
-- ssh ubuntu@192.168.0.10
-- ssh-keygen
-- ssh-copy-id ubuntu@192.168.0.10
-- sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
-# Install Kebernetes
-## Download kubesprey and configure it
-- git clone -b v2.13.2 https://github.com/kubernetes-sigs/kubespray.git
-- cd kubespray
-- sudo apt-get install virtualenv python3-pip -y
-- virtualenv -p python3 ~/venv/ansible
-- source ~/venv/ansible/bin/activate
-- pip3 install -r requirements.txt
-- cp -rfp inventory/sample inventory/mycluster
-- declare -a IPS=(192.168.0.10)
-- CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
-- Rename servername in the inventory
-- sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
-## Upgrade based software  
-- sudo apt-get upgrade -y
-# Get Kubesprey and prepare inventory
-
-# Do some things under the root user
-
+```
+Login to server
+ssh ubuntu@192.168.0.10
+ssh-keygen
+ssh-copy-id ubuntu@192.168.0.10
+sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
+```
+# Install Kubernetes Core
+## Prepare OS environment
+```
+sudo apt-get upgrade -y
+sudo apt-get install virtualenv python3-pip -y
+virtualenv -p python3 ~/venv/ansible
+source ~/venv/ansible/bin/activate
+```
+## Download Kubesprey (v2.13.2) and configure it
+```
+git clone -b v2.13.2 https://github.com/kubernetes-sigs/kubespray.git
+cd kubespray
+pip3 install -r requirements.txt
+cp -rfp inventory/sample inventory/mycluster
+declare -a IPS=(192.168.0.10)
+CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+Rename servername in the inventory
+sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
+```
 ## Prepare additional disk for path provision
 # add new disk to VM
+```
 ssh root@192.168.0.10
 mkfs.ext4 /dev/sdb
 DISK_UUID=$(blkid -s UUID -o value /dev/sdb)
 mkdir -p /opt/local-path-provisioner/
 mount /dev/sdb /opt/local-path-provisioner/
 echo "UUID=$DISK_UUID /opt/local-path-provisioner/ ext4 defaults 0 0" >> /etc/fstab
-
+```
 ## Install Helm 3
 
 curl https://helm.baltorepo.com/organization/signing.asc | sudo apt-key add -
