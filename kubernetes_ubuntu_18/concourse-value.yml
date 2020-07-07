@@ -1798,7 +1798,7 @@ web:
     ##
     annotations:
       kubernetes.io/ingress.class: "nginx"    
-      cert-manager.io/issuer: "letsencrypt-prod"
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
     ## Hostnames.
     ## Must be provided if Ingress is enabled.

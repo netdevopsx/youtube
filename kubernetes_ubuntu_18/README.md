@@ -94,6 +94,11 @@ helm install \
   --version v0.15.1 \
   --set installCRDs=true
 
+create clusterissuer
+
+# Create secret for ClusterIssuer Secret must be in the namespace cert-manager
+kubectl -n cert-manager create secret generic prod-route53-credentials-secret --from-literal=secret-access-key=MmtqhmKtcNIQJSe1CdSLvbkpKbQropF/Gcu6wuGU
+
 kubectl create ns concourse
 # Install Concourse
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
