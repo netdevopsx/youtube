@@ -58,7 +58,9 @@ pip3 install -r requirements.txt
 cp -rfp inventory/sample inventory/mycluster
 declare -a IPS=(192.168.0.10)
 CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+```
 Rename servername in the inventory
+```
 sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
 ```
 ## Run the installation process
@@ -68,7 +70,9 @@ ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root 
 local_path_provisioner_enabled=true \
 dashboard_enabled=false"
 mkdir  ~/.kube
+```
 Copy Kubernetes config from user Root to Ubuntu
+```
 scp root@192.168.0.10:/root/.kube/config ~/.kube/config
 ```
 - We have only one node,  we don't need to more one pod for core-dns
