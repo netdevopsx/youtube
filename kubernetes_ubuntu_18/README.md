@@ -1,7 +1,9 @@
-Insert Ubuntu 18.04 CD
-Fresh install Ubuntu
-sudo vi /etc/netplan/00-installer-config.yaml
+# Installation Process
+- Insert Ubuntu 18.04 CD
+- Conduct traditional Ubuntu installation
+- sudo vi /etc/netplan/00-installer-config.yaml
 # Set static IP address on interface
+```
 network:
   ethernets:
     ens160:
@@ -20,6 +22,7 @@ network:
           - 2001:4860:4860::8888
           - 2001:4860:4860::8844
   version: 2
+```
 
 Login to ubuntu@192.168.0.10
 ssh-keygen
