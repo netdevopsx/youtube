@@ -130,10 +130,10 @@ helm repo update
 ```
 - replace example domain my the domain you need
 ```
-vi concourse-value.yml
+vi concourse-value-v11.2.3.yml
 helm install \
   concourse concourse/concourse \
-  --values concourse-value.yml  \
+  --values concourse-value-v11.2.3.yml  \
   --namespace concourse \
   --version v11.2.3
 ```
