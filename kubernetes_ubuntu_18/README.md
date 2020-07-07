@@ -50,6 +50,10 @@ mkdir -p /opt/local-path-provisioner/
 mount /dev/sdb /opt/local-path-provisioner/
 echo "UUID=$DISK_UUID /opt/local-path-provisioner/ ext4 defaults 0 0" >> /etc/fstab
 ```
+## Download example files
+```
+git clone https://github.com/netdevopsx/youtube.git
+```
 ## Download Kubesprey (v2.13.2) and configure it
 ```
 git clone -b v2.13.2 https://github.com/kubernetes-sigs/kubespray.git
@@ -105,8 +109,17 @@ helm install \
   --set installCRDs=true
 ```
 ## Create secret for ClusterIssuer Secret must be in the namespace cert-manager
+- Change the directory to examples directory
+```
+cd ~/youtube/kubernetes_ubuntu_18
+```
+- Create secret
 ```
 kubectl -n cert-manager create secret generic prod-route53-credentials-secret --from-literal=secret-access-key=AWS_SECRET_KEY
+```
+- Create Cluster Issuer
+```
+vi ClusterIssuer.yml
 kubectl apply -f ClusterIssuer.yml
 ```
 ## Install Concourse
@@ -114,16 +127,12 @@ kubectl apply -f ClusterIssuer.yml
 ```
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
 helm repo update
-cd ..
-git clone https://github.com/netdevopsx/youtube.git
-cd youtube/kubernetes_ubuntu_18
+```
+- replace example domain my the domain you need
+```
 vi concourse-value.yml
 helm -n concourse install concourse -f concourse-value.yml concourse/concourse
 ```
-git clone https://github.com/netdevopsx/youtube.git
-cd kubernetes_ubuntu_18
-vi clusterissuer.yml
-kubectl apply -f clusterissuer.yml
 # Install HAProxy
 ```
 - ssh root@192.168.0.10
