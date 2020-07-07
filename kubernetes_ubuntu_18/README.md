@@ -103,10 +103,9 @@ helm install \
 - kubectl apply -f ClusterIssuer.yml
 ## Create secret for ClusterIssuer Secret must be in the namespace cert-manager
 - kubectl -n cert-manager create secret generic prod-route53-credentials-secret --from-literal=secret-access-key=AWS_SECRET_KEY
-
 - kubectl create ns concourse
 ## Install Concourse
-``
+```
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
 helm repo update
 cd ..
@@ -148,4 +147,3 @@ backend back_https
         server https1 192.168.0.10:31783 check
 
 service haproxy restart
-```
