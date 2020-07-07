@@ -42,7 +42,6 @@ virtualenv -p python3 ~/venv/ansible
 source ~/venv/ansible/bin/activate
 ```
 ## Prepare additional disk for path provision
-- add new disk to VM
 ```
 ssh root@192.168.0.10
 mkfs.ext4 /dev/sdb
@@ -62,32 +61,33 @@ CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inv
 Rename servername in the inventory
 sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
 ```
+## Run the installation process
+```
+ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml \
+-e "ansible_ssh_user=root \
+local_path_provisioner_enabled=true \
+dashboard_enabled=false"
+mkdir  ~/.kube
+Copy Kubernetes config from user Root to Ubuntu
+scp root@192.168.0.10:/root/.kube/config ~/.kube/config
+```
+- We have only one node,  we don't need to more one pod for core-dns
+- we will remove dns-autoscaler
+```
+kubectl delete deployment dns-autoscaler --namespace=kube-system
+```
+- scale current count of replicas to 1
+```
+kubectl scale deployments.apps -n kube-system coredns --replicas=1
+```
 ## Install Helm 3
-
+```
 curl https://helm.baltorepo.com/organization/signing.asc | sudo apt-key add -
 sudo apt-get install apt-transport-https --yes
 echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 sudo apt-get update
 sudo apt-get install helm
-
-# Install Kubernetes + local_path_provisioner_enabled
-
-ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml \
--e "ansible_ssh_user=root \
-local_path_provisioner_enabled=true \
-dashboard_enabled=false"
-
-# get kubernetes config file
-mkdir  ~/.kube
-scp root@192.168.0.10:/root/.kube/config ~/.kube/config
-
-# we have only one node,  we don't need to more one pod for core-dns
-# we will remove dns-autoscaler
-kubectl delete deployment dns-autoscaler --namespace=kube-system
-# scale current count of replicas to 1
-kubectl scale deployments.apps -n kube-system coredns --replicas=1
-
-
+```
 # Install ingress for baremetal (NodePort)
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml
 
