@@ -100,11 +100,13 @@ helm install \
   --version v0.15.1 \
   --set installCRDs=true
 ```
-- kubectl apply -f ClusterIssuer.yml
 ## Create secret for ClusterIssuer Secret must be in the namespace cert-manager
-- kubectl -n cert-manager create secret generic prod-route53-credentials-secret --from-literal=secret-access-key=AWS_SECRET_KEY
-- kubectl create ns concourse
+```
+kubectl -n cert-manager create secret generic prod-route53-credentials-secret --from-literal=secret-access-key=AWS_SECRET_KEY
+kubectl apply -f ClusterIssuer.yml
+```
 ## Install Concourse
+- kubectl create ns concourse
 ```
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
 helm repo update
@@ -116,15 +118,18 @@ helm -n concourse install concourse -f concourse-value.yml concourse/concourse
 ```
 git clone https://github.com/netdevopsx/youtube.git
 cd kubernetes_ubuntu_18
-vi clusterissuer.yml (Private data)
+vi clusterissuer.yml
 kubectl apply -f clusterissuer.yml
-vi cert-manager-secret.yml
-kubectl apply -f cert-manager-secret.yml
-```
 # Install HAProxy
+```
 - ssh root@192.168.0.10
-- apt-get install haproxy
-- vi /etc/haproxy/haproxy.cfg
+- apt-get install haproxy -y
+```
+- Edit HAProxy configuration to config file /etc/haproxy/haproxy.cfg
+```
+vi /etc/haproxy/haproxy.cfg
+```
+Add the follow text into the end of the file
 ```
 frontend front_http
         bind 192.168.0.11:80,[2a02:8071:31b6:8800::11]:80
@@ -145,5 +150,5 @@ backend back_https
         mode tcp
         balance roundrobin
         server https1 192.168.0.10:31783 check
-
-service haproxy restart
+```
+- service haproxy restart
