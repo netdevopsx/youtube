@@ -1,4 +1,5 @@
 # Installation Process
+## Clean server install
 - Insert Ubuntu 18.04 CD
 - Conduct traditional Ubuntu installation
 - sudo vi /etc/netplan/00-installer-config.yaml
@@ -23,28 +24,28 @@ network:
           - 2001:4860:4860::8844
   version: 2
 ```
-
-Login to ubuntu@192.168.0.10
-ssh-keygen
-ssh-copy-id ubuntu@192.168.0.10
-sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
-
-Install 
-
-# Download kubesprey and configure it
-git clone -b v2.13.2 https://github.com/kubernetes-sigs/kubespray.git
-cd kubespray
-sudo apt-get install virtualenv python3-pip -y
-virtualenv -p python3 ~/venv/ansible
-source ~/venv/ansible/bin/activate
-pip3 install -r requirements.txt
-cp -rfp inventory/sample inventory/mycluster
-declare -a IPS=(192.168.0.10)
-CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
-sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
-
-Upgrade based software  
-sudo apt-get upgrade -y
+- Reboot server
+## Prepare terminal (SSH keys)
+- Login to server
+- ssh ubuntu@192.168.0.10
+- ssh-keygen
+- ssh-copy-id ubuntu@192.168.0.10
+- sudo cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/authorized_keys
+# Install Kebernetes
+## Download kubesprey and configure it
+- git clone -b v2.13.2 https://github.com/kubernetes-sigs/kubespray.git
+- cd kubespray
+- sudo apt-get install virtualenv python3-pip -y
+- virtualenv -p python3 ~/venv/ansible
+- source ~/venv/ansible/bin/activate
+- pip3 install -r requirements.txt
+- cp -rfp inventory/sample inventory/mycluster
+- declare -a IPS=(192.168.0.10)
+- CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+- Rename servername in the inventory
+- sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
+## Upgrade based software  
+- sudo apt-get upgrade -y
 # Get Kubesprey and prepare inventory
 
 # Do some things under the root user
