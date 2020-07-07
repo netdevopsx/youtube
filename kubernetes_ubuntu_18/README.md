@@ -131,7 +131,11 @@ helm repo update
 - replace example domain my the domain you need
 ```
 vi concourse-value.yml
-helm -n concourse install concourse -f concourse-value.yml concourse/concourse
+helm install \
+  concourse concourse/concourse \
+  --values concourse-value.yml  \
+  --namespace concourse \
+  --version v11.2.3
 ```
 # Install HAProxy
 ```
