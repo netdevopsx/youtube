@@ -41,6 +41,16 @@ sudo apt-get install virtualenv python3-pip -y
 virtualenv -p python3 ~/venv/ansible
 source ~/venv/ansible/bin/activate
 ```
+## Prepare additional disk for path provision
+- add new disk to VM
+```
+ssh root@192.168.0.10
+mkfs.ext4 /dev/sdb
+DISK_UUID=$(blkid -s UUID -o value /dev/sdb)
+mkdir -p /opt/local-path-provisioner/
+mount /dev/sdb /opt/local-path-provisioner/
+echo "UUID=$DISK_UUID /opt/local-path-provisioner/ ext4 defaults 0 0" >> /etc/fstab
+```
 ## Download Kubesprey (v2.13.2) and configure it
 ```
 git clone -b v2.13.2 https://github.com/kubernetes-sigs/kubespray.git
@@ -51,16 +61,6 @@ declare -a IPS=(192.168.0.10)
 CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 Rename servername in the inventory
 sed -i 's/node1/kube-master/g' inventory/mycluster/hosts.yaml
-```
-## Prepare additional disk for path provision
-# add new disk to VM
-```
-ssh root@192.168.0.10
-mkfs.ext4 /dev/sdb
-DISK_UUID=$(blkid -s UUID -o value /dev/sdb)
-mkdir -p /opt/local-path-provisioner/
-mount /dev/sdb /opt/local-path-provisioner/
-echo "UUID=$DISK_UUID /opt/local-path-provisioner/ ext4 defaults 0 0" >> /etc/fstab
 ```
 ## Install Helm 3
 
