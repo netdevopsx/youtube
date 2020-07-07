@@ -88,10 +88,9 @@ echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt
 sudo apt-get update
 sudo apt-get install helm
 ```
-# Install ingress for baremetal (NodePort)
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml
-
-
+## Install ingress for baremetal (NodePort)
+- kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml
+```
 kubectl create namespace cert-manager
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
@@ -100,14 +99,14 @@ helm install \
   --namespace cert-manager \
   --version v0.15.1 \
   --set installCRDs=true
+```
+- kubectl apply -f ClusterIssuer.yml
+## Create secret for ClusterIssuer Secret must be in the namespace cert-manager
+- kubectl -n cert-manager create secret generic prod-route53-credentials-secret --from-literal=secret-access-key=AWS_SECRET_KEY
 
-create clusterissuer
-
-# Create secret for ClusterIssuer Secret must be in the namespace cert-manager
-kubectl -n cert-manager create secret generic prod-route53-credentials-secret --from-literal=secret-access-key=MmtqhmKtcNIQJSe1CdSLvbkpKbQropF/Gcu6wuGU
-
-kubectl create ns concourse
-# Install Concourse
+- kubectl create ns concourse
+## Install Concourse
+``
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
 helm repo update
 cd ..
@@ -115,20 +114,19 @@ git clone https://github.com/netdevopsx/youtube.git
 cd youtube/kubernetes_ubuntu_18
 vi concourse-value.yml
 helm -n concourse install concourse -f concourse-value.yml concourse/concourse
-
-
-Add Issuer
+```
 git clone https://github.com/netdevopsx/youtube.git
 cd kubernetes_ubuntu_18
 vi clusterissuer.yml (Private data)
 kubectl apply -f clusterissuer.yml
 vi cert-manager-secret.yml
 kubectl apply -f cert-manager-secret.yml
-
-ssh root@192.168.0.10
-apt-get install haproxy
-vi /etc/haproxy/haproxy.cfg
-
+```
+# Install HAProxy
+- ssh root@192.168.0.10
+- apt-get install haproxy
+- vi /etc/haproxy/haproxy.cfg
+```
 frontend front_http
         bind 192.168.0.11:80,[2a02:8071:31b6:8800::11]:80
         mode tcp
@@ -150,3 +148,4 @@ backend back_https
         server https1 192.168.0.10:31783 check
 
 service haproxy restart
+```
