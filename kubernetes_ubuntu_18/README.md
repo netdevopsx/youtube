@@ -1,5 +1,6 @@
 # Installation Process
 ## Prepare technical account in AWS for Route 53
+### Create policy
 - Open IAM -> Policies -> Create policy (JSON)
 ```
 {
@@ -28,6 +29,12 @@
 ```
 - Specify name: cert-manager
 - Create policy
+### Create user
+- Open IAM -> Users -> Add user
+- Set user name: cert-manager, Access type: Programmatic access
+- Attach existing policies: cert-manager
+- (Next: Tags) (Next: Review) (Create User)
+- Download .csw
 
 ## Clean server install
 - Insert Ubuntu 18.04 CD
