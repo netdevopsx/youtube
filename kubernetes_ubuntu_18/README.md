@@ -49,6 +49,7 @@ DISK_UUID=$(blkid -s UUID -o value /dev/sdb)
 mkdir -p /opt/local-path-provisioner/
 mount /dev/sdb /opt/local-path-provisioner/
 echo "UUID=$DISK_UUID /opt/local-path-provisioner/ ext4 defaults 0 0" >> /etc/fstab
+exit
 ```
 ## Download example files
 ```
