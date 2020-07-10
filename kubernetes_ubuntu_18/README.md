@@ -121,7 +121,7 @@ kubectl -n cert-manager create secret generic prod-route53-credentials-secret --
 - Create Cluster Issuer
 ```
 vi ClusterIssuer.yml
-kubectl apply -f ClusterIssuer.yml
+kubectl apply -f clusterissuer.yml
 ```
 ## Install Concourse
 - kubectl create ns concourse
