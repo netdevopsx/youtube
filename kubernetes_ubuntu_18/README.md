@@ -1,4 +1,41 @@
 # Installation Process
+## Prepare technical account in AWS for Route 53
+### Create policy
+- Open IAM -> Policies -> Create policy (JSON)
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "route53:GetChange",
+            "Resource": "arn:aws:route53:::change/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "route53:ChangeResourceRecordSets",
+                "route53:ListResourceRecordSets"
+            ],
+            "Resource": "arn:aws:route53:::hostedzone/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "route53:ListHostedZonesByName",
+            "Resource": "*"
+        }
+    ]
+}
+```
+- Specify name: cert-manager
+- Create policy
+### Create user
+- Open IAM -> Users -> Add user
+- Set user name: cert-manager, Access type: Programmatic access
+- Attach existing policies: cert-manager
+- (Next: Tags) (Next: Review) (Create User)
+- Download .csw
+
 ## Clean server install
 - Insert Ubuntu 18.04 CD
 - Conduct traditional Ubuntu installation
@@ -49,6 +86,7 @@ DISK_UUID=$(blkid -s UUID -o value /dev/sdb)
 mkdir -p /opt/local-path-provisioner/
 mount /dev/sdb /opt/local-path-provisioner/
 echo "UUID=$DISK_UUID /opt/local-path-provisioner/ ext4 defaults 0 0" >> /etc/fstab
+exit
 ```
 ## Download example files
 ```
@@ -120,7 +158,7 @@ kubectl -n cert-manager create secret generic prod-route53-credentials-secret --
 - Create Cluster Issuer
 ```
 vi ClusterIssuer.yml
-kubectl apply -f ClusterIssuer.yml
+kubectl apply -f clusterissuer.yml
 ```
 ## Install Concourse
 - kubectl create ns concourse
