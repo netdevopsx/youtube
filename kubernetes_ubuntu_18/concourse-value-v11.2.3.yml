@@ -215,7 +215,7 @@ concourse:
     ##
     ## Example: http://ci.concourse-ci.org
     ##
-    externalUrl: http://concourse.netdevopsx.com
+    externalUrl: http://ci.netdevopsx.com
 
     encryption:
       ## Enable encryption of pipeline configuration. Encryption keys can be set via secrets
@@ -1806,7 +1806,7 @@ web:
     ##   - concourse.domain.com
     ##
     hosts:
-      - concourse.netdevopsx.com
+      - ci.netdevopsx.com
 
     ## TLS configuration.
     ## Secrets must be manually created in the namespace.
@@ -1818,7 +1818,7 @@ web:
     tls:
       - secretName: concourse-tls 
         hosts:
-          - concourse.netdevopsx.com
+          - ci.netdevopsx.com
 
 ## Configuration values for Concourse Worker components.
 ## For more information regarding the characteristics of
