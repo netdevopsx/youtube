@@ -1,3 +1,9 @@
+# The Video of the process
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=_i9NCpPBNAc
+" target="_blank"><img src="http://img.youtube.com/vi/_i9NCpPBNAc/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+
 # Installation Process
 ## Prepare technical account in AWS for Route 53
 ### Create policy
