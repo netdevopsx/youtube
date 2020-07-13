@@ -39,7 +39,7 @@
 ## Clean server install
 - Insert Ubuntu 18.04 CD
 - Conduct traditional Ubuntu installation
-- sudo vi /etc/netplan/00-installer-config.yaml
+- sudo vi /etc/netplan/50-installer-config.yaml
 ## Set static IP address on interface
 ```
 network:
