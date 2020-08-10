@@ -1,7 +1,8 @@
 # Installation Process
 ## Loging into Linux server
-
+```
 ssh ubuntu@192.168.0.10
+```
 
 ## Install fly
 ```
