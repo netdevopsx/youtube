@@ -45,3 +45,12 @@ concourse_ci.pub should be uploaded to settings of repository awx_install_ci
 ```
 kubectl -n concourse-main create secret generic kube-config2 --from-file=value=/home/ubuntu/.kube/config
 ```
+
+## Build the images (concourse-kubernetes, concourse-ansible)
+Navigate to concourse_images and trigger patch, then both image's jobs: concourse-kubernetes and concourse-ansible
+
+## Deploy AWX
+Navigate to awx_deploy and trigger jobs: awx-green-install and awx-brue-install then awx-green-provision and awx-blue-provision
+
+## Select which colour will be production one
+Triger one colour blue or green
