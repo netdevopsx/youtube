@@ -32,3 +32,16 @@ fly -t netdevopsx set-pipeline \
     --pipeline concourse_images \
     --config pipelines/concourse_images.yml
 ```
+## Create secrets
+
+### Private key for github.com (Manage version of images)
+```
+ssh-keygen -f concourse_ci 
+kubectl -n concourse-main create secret generic github-version --from-file=private_key=concourse_ci
+```
+concourse_ci.pub should be uploaded to settings of repository awx_install_ci
+
+### Kube-config
+```
+kubectl -n concourse-main create secret generic kube-config2 --from-file=value=/home/ubuntu/.kube/config
+```
