@@ -4,11 +4,13 @@
 ssh ubuntu@192.168.0.10
 
 ## Install fly
+```
 curl -LO https://github.com/concourse/concourse/releases/download/v6.3.0/fly-6.3.0-linux-amd64.tgz
 tar zxvf fly-6.3.0-linux-amd64.tgz
 chmod +x fly
 sudo chown root:root fly
 sudo mv fly /usr/local/bin/
+```
 
 ## Login to concourse and create pipelines
 Clone repository 
